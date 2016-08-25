@@ -1,4 +1,4 @@
-# Palugada Project #
+# My Project #
 
 ###How to run###
 install nodemon on your laptop and then run the script below:
