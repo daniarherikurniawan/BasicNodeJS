@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%title%></title>
+		<link href="../../stylesheets/bootstrap.min.css" rel="stylesheet">
+		<link href="../../stylesheets/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="container" >
+			<div class="row" style="text-align: center">
+				<h1><%title%></h1>
+			</div>
+			<hr>
+			<div ng-app="myApp">
+				<div ng-controller="userController">
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-6">
+							<form class="form-horizontal" ng-submit="insertUser()">
+							    <div class="row">
+							       <div class="form-group">
+							        <label class="col-sm-2">Name</label>
+							        <div class="col-sm-10"><input type="text" ng-model="username" 
+							        name="username" placeholder="username" class="form-control" required /></div>
+							        </div>
+							   	</div>
+							    <div class="row">
+							       <div class="form-group">
+							        <label class="col-sm-2">Email</label>
+							        <div class="col-sm-10"><input type="email" ng-model="email" 
+							        name="email" placeholder="email" class="form-control" required /></div>
+							        </div>
+							   	</div>
+							    <div class="row">
+							       <div class="form-group">
+							        <label class="col-sm-2">Password</label>
+							        <div class="col-sm-10"><input type="password" ng-model="password" 
+							        name="password" placeholder="password" class="form-control" required /></div>
+							        </div>
+							   	</div>
+							  	<input class="btn btn-success pull-right" type="submit" id="submit" value="Submit" />
+							</form>
+						</div>
+					</div> 
+					<hr>
+					<div class="row">
+						<div class="row">
+				        	<input ng-change="showRegisteredUser()" type="checkbox" ng-model="isShowUser">
+							<label >Show registered users</label>
+				        </div>
+				         <div class="row" ng-show="isShowUser">
+				         	<table>
+							  	<tr ng-repeat="x in registeredUser | orderBy : '_id'">
+								    <td>{{ x.username }}</td>
+								    <td>{{ x.email }}</td>
+								    <td>
+       									<input type="button" value="Delete" class="btn-danger" ng-click="deleteUser(x._id)"/>
+			       					</td>
+							  	</tr>
+							</table>
+				        </div>
+					</div>
+
+				</div><!-- controller -->
+			</div><!-- MyApp -->
+		</div>
+	</body>
+</html>
+
+<script src="../../javascripts/jquery.min.js"></script>
+<script src="../../javascripts/angular.min.js"></script>
+<script src="../../javascripts/angular_directive.js"></script>
+<script src="../../javascripts/angular-ui-router.js"></script>
+<script src="../../javascripts/ui-bootstrap-tpls.min.js"></script>
+<script src="../../javascripts//angular-animate.js"></script>
+
+<script>
+$app.controller("userController", function($scope, $http, $templateRequest, $sce, $compile, $window){
+		$scope.registeredUser = [];
+		
+	    $scope.insertUser = function(){
+    		$http({
+		        url: '/db/user/insert',
+		        method: "POST",
+		        data: {
+	                username: $scope.username,
+	                password: $scope.password,
+	                email: $scope.email
+	            }
+		    })
+		    .then(function(response) {
+		        alert("New user has been saved successfully!");
+		        $scope.showRegisteredUser();
+		    }, 
+		    function(response) { // optional
+		        alert("failed: "+response.data);
+		    });
+		}
+
+		$scope.showRegisteredUser = function(){
+			if($scope.isShowUser){
+	    		$http({
+			        url: '/db/user/get_all',
+			        method: "POST"
+			    })
+			    .then(function(response) {
+			        $scope.registeredUser = response.data;
+			    }, 
+			    function(response) { // optional
+			        alert("failed: "+response.data);
+			    });
+			}
+		}
+
+		$scope.deleteUser = function(id){
+			$http({
+		        url: '/db/user/delete',
+		        method: "POST",
+		        data: {
+	                _id: id
+	            }
+		    })
+		    .then(function(response) {
+		        $scope.showRegisteredUser();
+		    }, 
+		    function(response) { // optional
+		        alert("failed: "+response.data);
+		    });
+		}
+	});
+
+
+</script>
